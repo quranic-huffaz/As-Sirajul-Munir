@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>KelasVault — Tabung Kelas Premium</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* Glassmorphism base */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px rgba(255, 255, 255, 0.08) solid;
+        }
+
+        /* Tab glow variants */
+        .gold-glow   { box-shadow: 0 0 25px rgba(212, 175, 55, 0.15); }
+        .green-glow  { box-shadow: 0 0 25px rgba(16, 185, 129, 0.15); }
+
+        /* Gold button (Bayaran) */
+        .btn-premium {
+            background: linear-gradient(90deg, #d4af37 0%, #f3e5ab 50%, #aa7c11 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* Green button (Pengeluaran) */
+        .btn-premium-fintech {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-premium-fintech:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* Bottom nav bar */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10, 12, 30, 0.92);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255,255,255,0.07);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+
+        .nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.25s ease;
+            border: none;
+            background: transparent;
+            color: #64748b;
+        }
+
+        .nav-btn .nav-icon {
+            width: 22px; height: 22px;
+            margin-bottom: 3px;
+            transition: transform 0.25s ease;
+        }
+        .nav-btn .nav-label {
+            font-size: 10px;
+            font-weight: 600;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.25s ease;
+        }
+
+        /* Active gold tab */
+        .nav-btn.active-gold .nav-label,
+        .nav-btn.active-gold svg { color: #d4af37; }
+        .nav-btn.active-gold::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 36px; height: 2px;
+            border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, #d4af37, #f3e5ab);
+        }
+
+        /* Active green tab */
+        .nav-btn.active-green .nav-label,
+        .nav-btn.active-green svg { color: #10b981; }
+        .nav-btn.active-green::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 50%;
+            transform: translateX(-50%);
+            width: 36px; height: 2px;
+            border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+
+        /* Page panel animation */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+
+        /* Scrollable content area above fixed nav */
+        .scroll-area {
+            padding-bottom: 72px;
+        }
+
+        /* Input date color fix for dark */
+        input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(0.5);
+        }
+
+        /* Select dark option */
+        select option { background: #0f172a; color: #fff; }
+    </style>
+</head>
+<body class="text-slate-200 flex flex-col">
+
+    <!-- ══════════════════════════════════════════
+         SCROLL CONTENT AREA
+    ══════════════════════════════════════════ -->
+    <div class="scroll-area flex items-start justify-center p-4 pt-6 min-h-screen">
+
+        <!-- ── TAB 1: BAYARAN ── -->
+        <div id="panel-bayaran" class="tab-panel active w-full max-w-md">
+            <div class="glassmorphism gold-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 mb-3">
+                        <span class="text-amber-400 font-bold text-xl">₸</span>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">TABUNG KELAS</h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Rekod Pembayaran</p>
+                </div>
+
+                <!-- QR Block -->
+                <div class="bg-white/5 rounded-2xl p-4 mb-6 border border-white/10 text-center">
+                    <p class="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-3">Imbas &amp; Bayar Melalui DuitNow</p>
+                    <div class="bg-white p-3 rounded-xl inline-block shadow-inner mx-auto mb-2">
+                        <div class="w-48 h-48 bg-slate-100 flex items-center justify-center text-slate-950 text-xs border border-dashed border-slate-300 rounded-lg relative overflow-hidden">
+                            <img src="qr-tabung-kelas.jpg" alt="DuitNow QR" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span class="hidden p-4 text-center text-slate-400">[ Sila pastikan fail imej qr-tabung-kelas.jpg berada di folder yang sama atau gunakan URL gambar ]</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Akaun Penerima: <br><span class="text-white font-medium">MUHAMMAD ARSHAD BIN TAJUDDIN</span></p>
+                </div>
+
+                <!-- Toast -->
+                <div id="toast-bayaran" class="hidden mb-4 p-3 rounded-xl text-center text-sm font-medium transition-all duration-300"></div>
+
+                <!-- Form -->
+                <form id="paymentForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Nama Penuh</label>
+                        <input type="text" id="b-nama" required placeholder="Masukkan nama penuh anda"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Hari</label>
+                            <select id="b-hari" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200">
+                                <option value="" disabled selected>Pilih hari</option>
+                                <option value="Isnin">Isnin</option>
+                                <option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option>
+                                <option value="Khamis">Khamis</option>
+                                <option value="Jumaat">Jumaat</option>
+                                <option value="Sabtu">Sabtu</option>
+                                <option value="Ahad">Ahad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Tarikh</label>
+                            <input type="date" id="b-tarikh" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Jumlah (RM)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-amber-500 font-semibold">RM</span>
+                            <input type="number" id="b-jumlah" step="0.01" min="0.01" required placeholder="0.00"
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200 font-semibold text-lg">
+                        </div>
+                    </div>
+                    <button type="submit" id="b-submitBtn" class="w-full btn-premium text-slate-950 font-bold py-3.5 px-4 rounded-xl mt-2 tracking-wide text-sm shadow-lg flex items-center justify-center gap-2">
+                        <span>HANTAR REKOD &amp; NOTIFIKASI</span>
+                    </button>
+                </form>
+
+                <p class="text-center text-[10px] text-slate-500 mt-6 tracking-wide">KelasVault · Secured Fintech Verification System</p>
+            </div>
+        </div>
+
+        <!-- ── TAB 2: PENGELUARAN ── -->
+        <div id="panel-pengeluaran" class="tab-panel w-full max-w-md">
+            <div class="glassmorphism green-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-3">
+                        <span class="text-emerald-400 font-bold text-xl">↓</span>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">TABUNG KELAS</h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Rekod Pengeluaran</p>
+                </div>
+
+                <!-- Toast -->
+                <div id="toast-pengeluaran" class="hidden mb-4 p-3 rounded-xl text-center text-sm font-medium transition-all duration-300"></div>
+
+                <!-- Form -->
+                <form id="expenseForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Nama Pengeluar</label>
+                        <input type="text" id="p-nama" required placeholder="Nama individu yang mengeluarkan duit"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Hari</label>
+                            <select id="p-hari" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200">
+                                <option value="" disabled selected>Pilih hari</option>
+                                <option value="Isnin">Isnin</option>
+                                <option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option>
+                                <option value="Khamis">Khamis</option>
+                                <option value="Jumaat">Jumaat</option>
+                                <option value="Sabtu">Sabtu</option>
+                                <option value="Ahad">Ahad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Tarikh</label>
+                            <input type="date" id="p-tarikh" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Jumlah Keluar (RM)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-emerald-500 font-semibold">RM</span>
+                            <input type="number" id="p-jumlah" step="0.01" min="0.01" required placeholder="0.00"
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200 font-semibold text-lg">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Catatan</label>
+                        <textarea id="p-catatan" rows="2" placeholder="Masukkan catatan atau tujuan pengeluaran duit"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200 text-sm resize-none"></textarea>
+                    </div>
+                    <button type="submit" id="p-submitBtn" class="w-full btn-premium-fintech text-slate-950 font-bold py-3.5 px-4 rounded-xl mt-2 tracking-wide text-sm shadow-lg flex items-center justify-center gap-2">
+                        <span>REKOD ALIRAN KELUAR</span>
+                    </button>
+                </form>
+
+                <p class="text-center text-[10px] text-slate-500 mt-6 tracking-wide">KelasVault · Secured Fintech Verification System</p>
+            </div>
+        </div>
+
+    </div><!-- /scroll-area -->
+
+
+    <!-- ══════════════════════════════════════════
+         BOTTOM TAB NAVIGATION
+    ══════════════════════════════════════════ -->
+    <nav class="bottom-nav flex">
+
+        <!-- Tab: Bayaran -->
+        <button id="tab-bayaran" class="nav-btn active-gold" onclick="switchTab('bayaran')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="nav-label">Bayaran</span>
+        </button>
+
+        <!-- Divider -->
+        <div class="w-px bg-white/5 self-stretch my-2"></div>
+
+        <!-- Tab: Pengeluaran -->
+        <button id="tab-pengeluaran" class="nav-btn" onclick="switchTab('pengeluaran')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round"
+                    d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
+            </svg>
+            <span class="nav-label">Pengeluaran</span>
+        </button>
+
+    </nav>
+
+
+    <!-- ══════════════════════════════════════════
+         SCRIPTS
+    ══════════════════════════════════════════ -->
+    <script>
+
+        /* ── Tab switching ── */
+        function switchTab(tab) {
+            // panels
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + tab).classList.add('active');
+
+            // nav buttons
+            const btnBayaran     = document.getElementById('tab-bayaran');
+            const btnPengeluaran = document.getElementById('tab-pengeluaran');
+            btnBayaran.className     = 'nav-btn' + (tab === 'bayaran'     ? ' active-gold'  : '');
+            btnPengeluaran.className = 'nav-btn' + (tab === 'pengeluaran' ? ' active-green' : '');
+        }
+
+
+        /* ── Shared helpers ── */
+        const hariArray = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"];
+
+        function todayValue() {
+            const d = new Date();
+            return d.toISOString().split('T')[0];
+        }
+
+        function todayHari() {
+            return hariArray[new Date().getDay()];
+        }
+
+        function formatDate(val) {
+            const p = val.split('-');
+            return `${p[2]}/${p[1]}/${p[0]}`;
+        }
+
+        function showToast(id, message, isSuccess) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.className = `block mb-4 p-3 rounded-xl text-center text-sm font-medium transition-all duration-300 ${
+                isSuccess
+                    ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                    : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+            }`;
+        }
+
+
+        /* ════════════════════════════════════════
+           TAB 1 — BAYARAN (tabung-kelas.html)
+        ════════════════════════════════════════ */
+        const SCRIPT_URL_BAYARAN   = "https://script.google.com/macros/s/AKfycbzlbBzbJQTWfzT25aCoK5yjEXukkUtIvucgovAwfqF_uCLuv_cXKIormbBNf5e3wyRU/exec";
+        const WHATSAPP_NUMBER      = "601139640931";
+        const WHATSAPP_GROUP_LINK  = "https://chat.whatsapp.com/JQnNtCt4DhU8fbkmL07w5l";
+
+        // Init Bayaran fields
+        document.getElementById('b-tarikh').value = todayValue();
+        document.getElementById('b-hari').value   = todayHari();
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('b-submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Menghantar...</span>`;
+
+            const nama   = document.getElementById('b-nama').value;
+            const hari   = document.getElementById('b-hari').value;
+            const tarikh = document.getElementById('b-tarikh').value;
+            const jumlah = document.getElementById('b-jumlah').value;
+            const formattedDate = formatDate(tarikh);
+
+            const fd = new FormData();
+            fd.append('nama', nama);
+            fd.append('hari', hari);
+            fd.append('tarikh', formattedDate);
+            fd.append('jumlah', jumlah);
+
+            fetch(SCRIPT_URL_BAYARAN, { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        showToast('toast-bayaran', "Rekod disimpan dalam Sheet! Membuka WhatsApp...", true);
+                        setTimeout(() => { bukaWhatsApp(nama, hari, formattedDate, jumlah); resetBayaran(); }, 1500);
+                    } else {
+                        showToast('toast-bayaran', "Gagal simpan ke Sheet: " + result.message, false);
+                        btn.disabled = false;
+                        btn.innerHTML = `<span>HANTAR REKOD &amp; NOTIFIKASI</span>`;
+                    }
+                })
+                .catch(() => {
+                    showToast('toast-bayaran', "Ralat sistem. Menghala terus ke WhatsApp...", false);
+                    setTimeout(() => { bukaWhatsApp(nama, hari, formattedDate, jumlah); resetBayaran(); }, 1500);
+                });
+        });
+
+        function bukaWhatsApp(nama, hari, tarikh, jumlah) {
+            const text = `Nama : ${nama}\nHari : ${hari}\nTarikh : ${tarikh}\nJumlah RM : ${parseFloat(jumlah).toFixed(2)}`;
+            window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`, '_blank');
+            setTimeout(() => { window.open(WHATSAPP_GROUP_LINK, '_blank'); }, 1200);
+        }
+
+        function resetBayaran() {
+            document.getElementById('paymentForm').reset();
+            document.getElementById('b-tarikh').value = todayValue();
+            document.getElementById('b-hari').value   = todayHari();
+            const btn = document.getElementById('b-submitBtn');
+            btn.disabled = false;
+            btn.innerHTML = `<span>HANTAR REKOD &amp; NOTIFIKASI</span>`;
+        }
+
+
+        /* ════════════════════════════════════════
+           TAB 2 — PENGELUARAN (duit-keluar.html)
+        ════════════════════════════════════════ */
+        const SCRIPT_URL_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzhgqrQNo-7Y26emyOHqzd0iCi1HprgYhNj3LkgXT0GUcEw1xHYiF6CKAnn8ywWDaNa/exec";
+
+        // Init Pengeluaran fields
+        document.getElementById('p-tarikh').value = todayValue();
+        document.getElementById('p-hari').value   = todayHari();
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const btn = document.getElementById('p-submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Menghantar...</span>`;
+
+            const nama    = document.getElementById('p-nama').value;
+            const hari    = document.getElementById('p-hari').value;
+            const tarikh  = document.getElementById('p-tarikh').value;
+            const jumlah  = document.getElementById('p-jumlah').value;
+            const catatan = document.getElementById('p-catatan').value;
+            const formattedDate = formatDate(tarikh);
+
+            const fd = new FormData();
+            fd.append('nama', nama);
+            fd.append('hari', hari);
+            fd.append('tarikh', formattedDate);
+            fd.append('jumlah', jumlah);
+            fd.append('catatan', catatan);
+
+            fetch(SCRIPT_URL_PENGELUARAN, { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        showToast('toast-pengeluaran', "Rekod aliran keluar wang berjaya disimpan!", true);
+                        resetPengeluaran();
+                    } else {
+                        showToast('toast-pengeluaran', "Gagal simpan: " + result.message, false);
+                        btn.disabled = false;
+                        btn.innerHTML = `<span>REKOD ALIRAN KELUAR</span>`;
+                    }
+                })
+                .catch(() => {
+                    showToast('toast-pengeluaran', "Ralat sistem rangkaian cloud.", false);
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>REKOD ALIRAN KELUAR</span>`;
+                });
+        });
+
+        function resetPengeluaran() {
+            document.getElementById('expenseForm').reset();
+            document.getElementById('p-tarikh').value = todayValue();
+            document.getElementById('p-hari').value   = todayHari();
+            const btn = document.getElementById('p-submitBtn');
+            btn.disabled = false;
+            btn.innerHTML = `<span>REKOD ALIRAN KELUAR</span>`;
+        }
+
+    </script>
+</body>
+</html>

@@ -208,7 +208,7 @@
                     </button>
                 </form>
 
-                <p class="text-center text-[10px] text-slate-500 mt-6 tracking-wide">KelasVault · Secured Fintech Verification System</p>
+                <p class="text-center text-[10px] text-slate-500 mt-6 tracking-wide">السِّرَاجُ المُنِير · Pelita yang Menerangi</p>
             </div>
         </div>
 
@@ -393,7 +393,7 @@
                 .then(r => r.json())
                 .then(result => {
                     if (result.status === 'success') {
-                        showToast('toast-bayaran', "Rekod disimpan dalam Sheet! Membuka WhatsApp...", true);
+                        showToast('toast-bayaran', "Alhamdulillah, rekod berjaya disimpan! Sila tunggu sebentar...", true);
                         setTimeout(() => { bukaWhatsApp(nama, hari, formattedDate, jumlah); resetBayaran(); }, 1500);
                     } else {
                         showToast('toast-bayaran', "Gagal simpan ke Sheet: " + result.message, false);

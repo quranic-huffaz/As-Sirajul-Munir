@@ -409,8 +409,7 @@
 
         function bukaWhatsApp(nama, hari, tarikh, jumlah) {
             const text = `Nama : ${nama}\nHari : ${hari}\nTarikh : ${tarikh}\nJumlah RM : ${parseFloat(jumlah).toFixed(2)}`;
-            window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`, '_blank');
-            setTimeout(() => { window.open(WHATSAPP_GROUP_LINK, '_blank'); }, 1200);
+            window.open(WHATSAPP_GROUP_LINK + `?text=${encodeURIComponent(text)}`, '_blank');
         }
 
         function resetBayaran() {

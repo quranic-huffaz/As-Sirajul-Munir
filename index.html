@@ -120,70 +120,177 @@
             min-width: 0;
         }
 
-        /* ── QUOTE CARD ──────────────────────────────── */
-        .quote-card {
-            background: rgba(255,255,255,0.04);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(240,192,64,0.18);
-            border-radius: 18px;
-            padding: 16px 18px;
-            margin-top: 12px;
-            position: relative;
-            overflow: hidden;
+        /* ── POPUP PETIKAN ───────────────────────────── */
+        #popup-petikan {
+            position: fixed;
+            top: 50%;
+            right: -420px;
+            transform: translateY(-50%);
+            width: min(340px, calc(100vw - 32px));
+            z-index: 9999;
+            transition: right 0.55s cubic-bezier(0.22, 1, 0.36, 1);
         }
 
-        .quote-card::before {
+        #popup-petikan.popup-show {
+            right: 16px;
+        }
+
+        .popup-inner {
+            background: linear-gradient(160deg, #071810 0%, #040d08 60%, #071210 100%);
+            border: 1px solid rgba(240,192,64,0.22);
+            border-radius: 22px;
+            padding: 20px 20px 18px;
+            position: relative;
+            overflow: hidden;
+            box-shadow:
+                0 24px 60px rgba(0,0,0,0.55),
+                0 0 0 1px rgba(240,192,64,0.08),
+                inset 0 1px 0 rgba(255,255,255,0.05);
+        }
+
+        .popup-inner::before {
             content: '';
             position: absolute;
             top: 0; left: 0; right: 0;
             height: 1px;
-            background: linear-gradient(90deg, transparent, rgba(240,192,64,0.5), transparent);
+            background: linear-gradient(90deg, transparent, rgba(240,192,64,0.55), transparent);
         }
 
-        .quote-mark {
-            font-family: 'DM Serif Display', serif;
-            font-size: 48px;
-            line-height: 1;
-            color: rgba(240,192,64,0.25);
+        .popup-inner::after {
+            content: '';
             position: absolute;
-            top: 6px;
-            left: 14px;
+            inset: 0;
+            background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.012'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+            pointer-events: none;
+            border-radius: 22px;
+        }
+
+        .popup-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            background: linear-gradient(135deg, rgba(240,192,64,0.18), rgba(240,192,64,0.08));
+            border: 1px solid rgba(240,192,64,0.28);
+            border-radius: 20px;
+            padding: 4px 10px 4px 7px;
+            margin-bottom: 12px;
+        }
+
+        .popup-tag-dot {
+            width: 5px; height: 5px;
+            border-radius: 50%;
+            background: #f0c040;
+            box-shadow: 0 0 6px rgba(240,192,64,0.9);
+            animation: blink-dot 1.5s ease-in-out infinite;
+        }
+
+        .popup-tag-text {
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: rgba(240,192,64,0.9);
+        }
+
+        .popup-quote-mark {
+            font-family: 'DM Serif Display', serif;
+            font-size: 52px;
+            line-height: 1;
+            color: rgba(240,192,64,0.18);
+            position: absolute;
+            top: 48px;
+            left: 16px;
             pointer-events: none;
             user-select: none;
+            z-index: 1;
         }
 
-        .quote-text {
-            font-size: 11.5px;
+        .popup-quote-text {
+            font-size: 12px;
             font-weight: 400;
             font-style: italic;
-            color: rgba(255,255,255,0.75);
-            line-height: 1.7;
+            color: rgba(255,255,255,0.78);
+            line-height: 1.75;
             padding-left: 4px;
-            padding-top: 14px;
+            padding-top: 8px;
+            position: relative;
+            z-index: 2;
         }
 
-        .quote-author {
-            margin-top: 10px;
+        .popup-author-row {
+            margin-top: 14px;
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
+            position: relative;
+            z-index: 2;
         }
 
-        .quote-author-line {
+        .popup-author-line {
             flex: 1;
             height: 1px;
-            background: linear-gradient(90deg, rgba(240,192,64,0.3), transparent);
+            background: linear-gradient(90deg, rgba(240,192,64,0.35), transparent);
         }
 
-        .quote-author-name {
-            font-size: 10px;
+        .popup-author-name {
+            font-size: 9.5px;
             font-weight: 700;
             letter-spacing: 0.04em;
-            color: rgba(240,192,64,0.8);
+            color: rgba(240,192,64,0.85);
             text-transform: uppercase;
             text-align: right;
-            line-height: 1.4;
+            line-height: 1.45;
+        }
+
+        .popup-btn {
+            margin-top: 16px;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 7px;
+            background: linear-gradient(135deg, #16a34a, #0d9b41);
+            border: none;
+            border-radius: 14px;
+            padding: 11px 20px;
+            font-size: 11.5px;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+            color: #fff;
+            cursor: pointer;
+            position: relative;
+            z-index: 2;
+            box-shadow: 0 4px 18px rgba(22,163,74,0.40);
+            transition: transform 0.15s, box-shadow 0.15s;
+            text-decoration: none;
+        }
+
+        .popup-btn:active, .popup-btn:hover {
+            transform: scale(0.97);
+            box-shadow: 0 2px 10px rgba(22,163,74,0.30);
+        }
+
+        .popup-close {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            width: 28px; height: 28px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.07);
+            border: 1px solid rgba(255,255,255,0.1);
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer;
+            z-index: 10;
+            transition: background 0.15s;
+        }
+
+        .popup-close:hover, .popup-close:active {
+            background: rgba(255,255,255,0.14);
+        }
+
+        .popup-close i {
+            font-size: 10px;
+            color: rgba(255,255,255,0.5);
         }
 
         /* ── CARDS ───────────────────────────────────── */
@@ -725,18 +832,32 @@
                 </div>
             </div>
 
-            <!-- Kad Petikan -->
-            <div class="quote-card">
-                <div class="quote-mark">"</div>
-                <p class="quote-text">Orang yang mempunyai himmah yang tinggi melihat kesusahan sebagai jambatan menuju kejayaan. Bagi mereka, kepayahan dalam belajar adalah kemanisan, manakala rehat dan kemalasan adalah satu kerugian yang amat besar.</p>
-                <div class="quote-author">
-                    <div class="quote-author-line"></div>
-                    <p class="quote-author-name">Syeikh Muhammad al-Khidir Husain<br>Mantan Syeikhul Azhar</p>
-                </div>
-            </div>
-
         </div>
     </header>
+
+    <!-- ═══════════════ POPUP PETIKAN HARI INI ═══════════════ -->
+    <div id="popup-petikan" role="dialog" aria-modal="true" aria-label="Petikan Hari Ini">
+        <div class="popup-inner">
+            <button class="popup-close" id="popup-close-btn" aria-label="Tutup">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+            <div class="popup-tag">
+                <div class="popup-tag-dot"></div>
+                <span class="popup-tag-text">Petikan Hari Ini</span>
+            </div>
+            <div class="popup-quote-mark">"</div>
+            <p class="popup-quote-text">Orang yang mempunyai himmah yang tinggi melihat kesusahan sebagai jambatan menuju kejayaan. Bagi mereka, kepayahan dalam belajar adalah kemanisan, manakala rehat dan kemalasan adalah satu kerugian yang amat besar.</p>
+            <div class="popup-author-row">
+                <div class="popup-author-line"></div>
+                <p class="popup-author-name">Syeikh Muhammad al-Khidir Husain<br>Mantan Syeikhul Azhar</p>
+            </div>
+            <a href="#" class="popup-btn" id="popup-kad-btn">
+                <i class="fa-solid fa-book-open-reader"></i>
+                Baca Kad Petikan
+                <i class="fa-solid fa-arrow-right" style="margin-left:2px;font-size:10px;opacity:0.7;"></i>
+            </a>
+        </div>
+    </div>
 
     <!-- ═══════════════ MAIN MENU ═══════════════ -->
     <main class="max-w-md mx-auto px-5 -mt-12 space-y-6">
@@ -771,6 +892,46 @@
     <!-- ═══════════════ SCRIPT ═══════════════ -->
     <script src="app.js"></script>
     <script src="popup.js"></script>
+
+    <!-- Popup Petikan Script -->
+    <script>
+        (function() {
+            var links = [
+                'https://kad-cerita.pages.dev/?id=-OuFVw3g0DmsuZ9ej--o',
+                'https://kad-cerita.pages.dev/?id=-OtspNwV6k4ma4Aqz_iv',
+                'https://kad-cerita.pages.dev/?id=-Ou7CtEiFymEmLs-yVys'
+            ];
+
+            var popup = document.getElementById('popup-petikan');
+            var closeBtn = document.getElementById('popup-close-btn');
+            var kadBtn = document.getElementById('popup-kad-btn');
+
+            function showPopup() {
+                popup.classList.add('popup-show');
+            }
+
+            function hidePopup() {
+                popup.classList.remove('popup-show');
+            }
+
+            // Muncul selepas 10 saat
+            setTimeout(showPopup, 10000);
+
+            // Tutup popup
+            closeBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                hidePopup();
+            });
+
+            // Klik butang → link rawak
+            kadBtn.addEventListener('click', function(e) {
+                e.preventDefault();
+                var url = links[Math.floor(Math.random() * links.length)];
+                window.open(url, '_blank', 'noopener');
+                hidePopup();
+            });
+        })();
+    </script>
 
     <!-- Lantern Bubble Script -->
     <script>

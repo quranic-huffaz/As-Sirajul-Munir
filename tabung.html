@@ -1,0 +1,1439 @@
+<!DOCTYPE html>
+<html lang="ms">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tabung Kelas - As-Sirajul Munir</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%);
+            min-height: 100vh;
+            min-height: 100dvh;
+        }
+
+        /* ── Glassmorphism ── */
+        .glassmorphism {
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px rgba(255, 255, 255, 0.08) solid;
+        }
+
+        /* ── Glow variants ── */
+        .gold-glow  { box-shadow: 0 0 25px rgba(212, 175, 55, 0.15); }
+        .green-glow { box-shadow: 0 0 25px rgba(16, 185, 129, 0.15); }
+        .blue-glow  { box-shadow: 0 0 25px rgba(99, 102, 241, 0.15); }
+
+        /* ── Card premium ── */
+        .card-premium {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(212, 175, 55, 0.2);
+        }
+        .card-premium-fintech {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+        .card-premium-blue {
+            background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+            border: 1px solid rgba(99, 102, 241, 0.25);
+        }
+
+        /* ── Gold button (Bayaran) ── */
+        .btn-premium {
+            background: linear-gradient(90deg, #d4af37 0%, #f3e5ab 50%, #aa7c11 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-premium:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(212, 175, 55, 0.3);
+        }
+
+        /* ── Green button (Pengeluaran) ── */
+        .btn-premium-fintech {
+            background: linear-gradient(90deg, #10b981 0%, #34d399 50%, #059669 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-premium-fintech:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.3);
+        }
+
+        /* ── Scrollbar ── */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: rgba(255,255,255,0.01); }
+        ::-webkit-scrollbar-thumb { background: rgba(212,175,55,0.2); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: rgba(212,175,55,0.4); }
+
+        /* ── Bottom nav ── */
+        .bottom-nav {
+            position: fixed;
+            bottom: 0; left: 0; right: 0;
+            background: rgba(10, 12, 30, 0.95);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border-top: 1px solid rgba(255,255,255,0.07);
+            z-index: 100;
+            padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-btn {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 10px 0 8px;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.25s ease;
+            border: none;
+            background: transparent;
+            color: #64748b;
+        }
+        .nav-btn .nav-icon { width: 20px; height: 20px; margin-bottom: 3px; transition: transform 0.25s ease; }
+        .nav-btn .nav-label { font-size: 9px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; transition: color 0.25s ease; }
+
+        .nav-btn.active-gold .nav-label,
+        .nav-btn.active-gold svg { color: #d4af37; }
+        .nav-btn.active-gold::after {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 36px; height: 2px; border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, #d4af37, #f3e5ab);
+        }
+        .nav-btn.active-green .nav-label,
+        .nav-btn.active-green svg { color: #10b981; }
+        .nav-btn.active-green::after {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 36px; height: 2px; border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, #10b981, #34d399);
+        }
+        .nav-btn.active-blue .nav-label,
+        .nav-btn.active-blue svg { color: #818cf8; }
+        .nav-btn.active-blue::after {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 36px; height: 2px; border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, #6366f1, #818cf8);
+        }
+        .nav-btn.active-rose .nav-label,
+        .nav-btn.active-rose svg { color: #fb7185; }
+        .nav-btn.active-rose::after {
+            content: '';
+            position: absolute; top: 0; left: 50%; transform: translateX(-50%);
+            width: 36px; height: 2px; border-radius: 0 0 4px 4px;
+            background: linear-gradient(90deg, #f43f5e, #fb7185);
+        }
+
+        /* ── Panels ── */
+        .tab-panel { display: none; }
+        .tab-panel.active { display: block; }
+        .scroll-area { padding-bottom: 90px; }
+
+        /* ── Search + Filter inputs ── */
+        .search-input {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #fff;
+            padding: 10px 14px 10px 38px;
+            font-size: 12px;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .search-input:focus { border-color: rgba(212,175,55,0.4); }
+        .search-input-green:focus { border-color: rgba(16,185,129,0.4) !important; }
+        .search-input::placeholder { color: #475569; }
+
+        .filter-select {
+            background: rgba(15,23,42,0.6);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 12px;
+            color: #fff;
+            padding: 10px 14px;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.04em;
+            outline: none;
+            transition: border-color 0.2s;
+            cursor: pointer;
+            appearance: none;
+            -webkit-appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b' stroke-width='2'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+            background-repeat: no-repeat;
+            background-position: right 10px center;
+            background-size: 14px;
+            padding-right: 30px;
+        }
+        .filter-select:focus { border-color: rgba(212,175,55,0.4); }
+        .filter-select-green:focus { border-color: rgba(16,185,129,0.4) !important; }
+        select option { background: #0f172a; color: #fff; }
+
+        /* ── Highlight match ── */
+        mark { background: rgba(212,175,55,0.25); color: #fbbf24; border-radius: 2px; padding: 0 1px; }
+        .mark-green { background: rgba(16,185,129,0.2); color: #34d399; }
+
+        /* ── Row empty search ── */
+        .no-result-row td { padding: 32px; text-align: center; }
+
+        /* ── Refresh spin ── */
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .animate-spin { animation: spin 1s linear infinite; }
+
+        /* ── Input date fix ── */
+        input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(0.5); }
+
+        /* ── Balance card (MAE style) ── */
+        .balance-card {
+            background: linear-gradient(135deg, #1a1f3a 0%, #0f172a 60%, #0a0f1e 100%);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+        .balance-card::before {
+            content: '';
+            position: absolute;
+            top: -60px; right: -60px;
+            width: 200px; height: 200px;
+            background: radial-gradient(circle, rgba(99,102,241,0.12) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .balance-card::after {
+            content: '';
+            position: absolute;
+            bottom: -40px; left: -40px;
+            width: 160px; height: 160px;
+            background: radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+
+        /* ── Transaction list item ── */
+        .txn-item {
+            background: rgba(255,255,255,0.02);
+            border: 1px solid rgba(255,255,255,0.05);
+            border-radius: 14px;
+            transition: all 0.2s ease;
+        }
+        .txn-item:hover {
+            background: rgba(255,255,255,0.04);
+            border-color: rgba(255,255,255,0.08);
+        }
+        .txn-in  { border-left: 3px solid #d4af37; }
+        .txn-out { border-left: 3px solid #10b981; }
+
+        /* ── Pill badges ── */
+        .pill-in  { background: rgba(212,175,55,0.1);  color: #d4af37;  border: 1px solid rgba(212,175,55,0.2);  }
+        .pill-out { background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.2); }
+
+        /* ── Pulse dot ── */
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+        .pulse-dot { animation: pulse 2s cubic-bezier(.4,0,.6,1) infinite; }
+    </style>
+</head>
+<body class="text-slate-200 flex flex-col">
+
+    <div class="scroll-area flex items-start justify-center p-4 pt-6 min-h-screen">
+
+        <!-- ══════════════════════════════════════════════════════════
+             PANEL 1 — BAYARAN (Form duit masuk)
+        ══════════════════════════════════════════════════════════ -->
+        <div id="panel-bayaran" class="tab-panel active w-full max-w-md">
+            <div class="glassmorphism gold-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-amber-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30 mb-3">
+                        <span class="text-amber-400 font-bold text-xl">₸</span>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">TABUNG KELAS</h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Rekod Pembayaran</p>
+                </div>
+
+                <!-- QR Block -->
+                <div class="bg-white/5 rounded-2xl p-4 mb-6 border border-white/10 text-center">
+                    <p class="text-xs text-amber-400 font-semibold uppercase tracking-wider mb-3">Imbas &amp; Bayar Melalui DuitNow</p>
+                    <div class="bg-white p-3 rounded-xl inline-block shadow-inner mx-auto mb-2">
+                        <div class="w-48 h-48 bg-slate-100 flex items-center justify-center text-slate-950 text-xs border border-dashed border-slate-300 rounded-lg relative overflow-hidden">
+                            <img src="qr-tabung-kelas.jpg" alt="DuitNow QR" class="w-full h-full object-contain" onerror="this.style.display='none'; this.nextElementSibling.style.display='block';">
+                            <span class="hidden p-4 text-center text-slate-400">[ Sila pastikan fail imej qr-tabung-kelas.jpg berada di folder yang sama atau gunakan URL gambar ]</span>
+                        </div>
+                    </div>
+                    <p class="text-[11px] text-slate-400">Akaun Penerima: <br><span class="text-white font-medium">MUHAMMAD ARSHAD BIN TAJUDDIN</span></p>
+                </div>
+
+                <!-- Toast -->
+                <div id="toast-bayaran" class="hidden mb-4 p-3 rounded-xl text-center text-sm font-medium transition-all duration-300"></div>
+
+                <!-- Form -->
+                <form id="paymentForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Nama Penuh</label>
+                        <input type="text" id="b-nama" required placeholder="Masukkan nama penuh anda"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Hari</label>
+                            <select id="b-hari" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200">
+                                <option value="" disabled selected>Pilih hari</option>
+                                <option value="Isnin">Isnin</option>
+                                <option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option>
+                                <option value="Khamis">Khamis</option>
+                                <option value="Jumaat">Jumaat</option>
+                                <option value="Sabtu">Sabtu</option>
+                                <option value="Ahad">Ahad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Tarikh</label>
+                            <input type="date" id="b-tarikh" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Jumlah (RM)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-amber-500 font-semibold">RM</span>
+                            <input type="number" id="b-jumlah" step="0.01" min="0.01" required placeholder="0.00"
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition duration-200 font-semibold text-lg">
+                        </div>
+                    </div>
+                    <button type="submit" id="b-submitBtn" class="w-full btn-premium text-slate-950 font-bold py-3.5 px-4 rounded-xl mt-2 tracking-wide text-sm shadow-lg flex items-center justify-center gap-2">
+                        <span>HANTAR REKOD &amp; NOTIFIKASI</span>
+                    </button>
+                </form>
+
+                <p class="text-center text-[10px] text-slate-500 mt-6 tracking-wide">السِّرَاجُ المُنِير · Pelita yang Menerangi</p>
+            </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════════════════════
+             PANEL 2 — PENGELUARAN (Form duit keluar)
+        ══════════════════════════════════════════════════════════ -->
+        <div id="panel-pengeluaran" class="tab-panel w-full max-w-md">
+            <div class="glassmorphism green-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-32 h-32 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="text-center mb-6">
+                    <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30 mb-3">
+                        <span class="text-emerald-400 font-bold text-xl">↓</span>
+                    </div>
+                    <h1 class="text-2xl font-bold tracking-tight text-white">TABUNG KELAS</h1>
+                    <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Rekod Pengeluaran</p>
+                </div>
+
+                <!-- Toast -->
+                <div id="toast-pengeluaran" class="hidden mb-4 p-3 rounded-xl text-center text-sm font-medium transition-all duration-300"></div>
+
+                <!-- Form -->
+                <form id="expenseForm" class="space-y-4">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Nama Pengeluar</label>
+                        <input type="text" id="p-nama" required placeholder="Nama individu yang mengeluarkan duit"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200">
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Hari</label>
+                            <select id="p-hari" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200">
+                                <option value="" disabled selected>Pilih hari</option>
+                                <option value="Isnin">Isnin</option>
+                                <option value="Selasa">Selasa</option>
+                                <option value="Rabu">Rabu</option>
+                                <option value="Khamis">Khamis</option>
+                                <option value="Jumaat">Jumaat</option>
+                                <option value="Sabtu">Sabtu</option>
+                                <option value="Ahad">Ahad</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Tarikh</label>
+                            <input type="date" id="p-tarikh" required
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Jumlah Keluar (RM)</label>
+                        <div class="relative">
+                            <span class="absolute left-4 top-3 text-emerald-500 font-semibold">RM</span>
+                            <input type="number" id="p-jumlah" step="0.01" min="0.01" required placeholder="0.00"
+                                class="w-full bg-slate-950/50 border border-slate-800 rounded-xl pl-12 pr-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200 font-semibold text-lg">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">Catatan</label>
+                        <textarea id="p-catatan" rows="2" placeholder="Masukkan catatan atau tujuan pengeluaran duit"
+                            class="w-full bg-slate-950/50 border border-slate-800 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-emerald-500/50 focus:ring-1 focus:ring-emerald-500/50 transition duration-200 text-sm resize-none"></textarea>
+                    </div>
+                    <button type="submit" id="p-submitBtn" class="w-full btn-premium-fintech text-slate-950 font-bold py-3.5 px-4 rounded-xl mt-2 tracking-wide text-sm shadow-lg flex items-center justify-center gap-2">
+                        <span>REKOD ALIRAN KELUAR</span>
+                    </button>
+                </form>
+
+                <p class="text-center text-[10px] text-slate-500 mt-6 tracking-wide">السِّرَاجُ المُنِير · Pelita yang Menerangi</p>
+            </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════════════════════
+             PANEL 3 — PENYATA (MAE-style: baki + senarai transaksi gabungan)
+        ══════════════════════════════════════════════════════════ -->
+        <div id="panel-penyata" class="tab-panel w-full max-w-4xl">
+            <div class="glassmorphism blue-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center border-b border-white/10 pb-6 mb-6 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-indigo-500/10 border border-indigo-500/30">
+                            <svg class="w-6 h-6 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+                        </div>
+                        <div>
+                            <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white">PENYATA AKAUN</h1>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Baki &amp; Transaksi Terkini</p>
+                        </div>
+                    </div>
+                    <button onclick="muatSemuaData()" class="self-start md:self-auto bg-white/5 hover:bg-white/10 text-xs font-semibold tracking-wide border border-white/10 px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2">
+                        <svg id="refreshIcon-ps" class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"></path></svg>
+                        <span>KEMASKINI DATA</span>
+                    </button>
+                </div>
+
+                <!-- ── BAHAGIAN ATAS: Balance Card (MAE style) ── -->
+                <div class="balance-card rounded-3xl p-6 mb-6 relative">
+                    <div class="relative z-10">
+                        <p class="text-[10px] text-indigo-300 uppercase tracking-[0.2em] font-semibold mb-1">Baki Semasa Tabung Kelas</p>
+                        <div class="flex items-end gap-3 mb-4">
+                            <h2 id="ps-baki" class="text-4xl md:text-5xl font-bold text-white tracking-tight">RM 0.00</h2>
+                            <span id="ps-baki-status" class="hidden text-xs px-2 py-1 rounded-full font-semibold mb-1"></span>
+                        </div>
+                        <!-- Mini summary row -->
+                        <div class="grid grid-cols-2 gap-3 mb-4">
+                            <div class="bg-white/5 rounded-2xl p-3.5 border border-amber-500/10">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+                                    <p class="text-[9px] text-amber-400 font-bold uppercase tracking-wider">Duit Masuk</p>
+                                </div>
+                                <p id="ps-total-masuk" class="text-lg font-bold text-white">RM 0.00</p>
+                                <p id="ps-count-masuk" class="text-[10px] text-slate-500 mt-0.5">0 transaksi</p>
+                            </div>
+                            <div class="bg-white/5 rounded-2xl p-3.5 border border-emerald-500/10">
+                                <div class="flex items-center gap-1.5 mb-1">
+                                    <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>
+                                    <p class="text-[9px] text-emerald-400 font-bold uppercase tracking-wider">Duit Keluar</p>
+                                </div>
+                                <p id="ps-total-keluar" class="text-lg font-bold text-white">RM 0.00</p>
+                                <p id="ps-count-keluar" class="text-[10px] text-slate-500 mt-0.5">0 transaksi</p>
+                            </div>
+                        </div>
+                        <p class="text-[11px] text-slate-400 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-indigo-400 inline-block pulse-dot"></span>
+                            <span id="ps-tarikh-kini"></span>
+                        </p>
+                    </div>
+                </div>
+
+                <!-- ── Filter bar ── -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-5">
+                    <div class="relative flex-1">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-indigo-400/60 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                        <input type="text" id="ps-search" class="search-input" style="border-color: rgba(99,102,241,0.2);" placeholder="Cari nama, tarikh, jumlah..." oninput="filterPenyata()">
+                    </div>
+                    <div class="relative sm:w-48">
+                        <select id="ps-bulan" class="filter-select w-full" style="border-color: rgba(99,102,241,0.2);" onchange="filterPenyata()">
+                            <option value="">Semua Bulan</option>
+                        </select>
+                    </div>
+                    <div class="relative sm:w-40">
+                        <select id="ps-jenis" class="filter-select w-full" style="border-color: rgba(99,102,241,0.2);" onchange="filterPenyata()">
+                            <option value="">Semua Jenis</option>
+                            <option value="masuk">Duit Masuk</option>
+                            <option value="keluar">Duit Keluar</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- ── Sub-header ── -->
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+                    Senarai Transaksi
+                    <span id="ps-badge" class="hidden ml-auto text-[10px] bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 px-2 py-0.5 rounded-full font-semibold tracking-wider"></span>
+                </h3>
+
+                <!-- ── Loading ── -->
+                <div id="ps-loading" class="py-12 text-center">
+                    <svg class="animate-spin h-8 w-8 text-indigo-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-xs text-slate-400 tracking-wide uppercase">Memuatkan Penyata Akaun...</p>
+                </div>
+
+                <!-- ── Empty ── -->
+                <div id="ps-empty" class="hidden py-12 text-center bg-white/5 border border-dashed border-white/10 rounded-2xl">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Tiada transaksi ditemui buat masa ini.</p>
+                </div>
+
+                <!-- ── Transaction list ── -->
+                <div id="ps-list" class="hidden space-y-2"></div>
+
+                <p class="text-center text-[10px] text-slate-500 mt-8 tracking-wide border-t border-white/5 pt-4">السِّرَاجُ المُنِير · Pelita yang Menerangi</p>
+            </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════════════════════
+             PANEL 4 — REKOD BAYARAN (senarai table duit masuk)
+        ══════════════════════════════════════════════════════════ -->
+        <div id="panel-rekod-bayaran" class="tab-panel w-full max-w-4xl">
+            <div class="glassmorphism gold-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-amber-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center border-b border-white/10 pb-6 mb-6 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-amber-500/10 border border-amber-500/30">
+                            <span class="text-amber-400 font-bold text-xl">₸</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white">REKOD BAYARAN</h1>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Penyata &amp; Senarai Transaksi</p>
+                        </div>
+                    </div>
+                    <button onclick="muatData()" id="btnRefresh-b" class="self-start md:self-auto bg-white/5 hover:bg-white/10 text-xs font-semibold tracking-wide border border-white/10 px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2">
+                        <svg id="refreshIcon-b" class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"></path></svg>
+                        <span>KEMASKINI DATA</span>
+                    </button>
+                </div>
+
+                <!-- Stat cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="card-premium rounded-2xl p-6 relative overflow-hidden md:col-span-2 flex flex-col justify-between min-h-[140px]">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <span class="text-7xl font-bold text-amber-400">RM</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-amber-400 uppercase tracking-wider mb-1">Jumlah Bayaran Terkumpul</p>
+                            <h2 id="totalBayaran" class="text-3xl md:text-4xl font-bold text-white tracking-tight">RM 0.00</h2>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-4 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                            Dikemaskini secara langsung
+                        </p>
+                    </div>
+                    <div class="bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Jumlah Transaksi</p>
+                            <h2 id="totalTransaksi" class="text-2xl md:text-3xl font-bold text-white tracking-tight">0</h2>
+                        </div>
+                        <p id="TarikhKini" class="text-[11px] text-slate-500 mt-4"></p>
+                    </div>
+                </div>
+
+                <!-- Search + Filter bar -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-5">
+                    <div class="relative flex-1">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-amber-500/60 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                        <input type="text" id="search-b" class="search-input" placeholder="Cari nama, hari, tarikh, jumlah..." oninput="filterBayaran()">
+                    </div>
+                    <div class="relative sm:w-48">
+                        <select id="bulan-b" class="filter-select w-full" onchange="filterBayaran()">
+                            <option value="">Semua Bulan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sub-header -->
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-amber-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Rekod Transaksi Terkini
+                    <span id="badge-b" class="hidden ml-auto text-[10px] bg-amber-500/10 border border-amber-500/20 text-amber-400 px-2 py-0.5 rounded-full font-semibold tracking-wider"></span>
+                </h3>
+
+                <!-- Loading -->
+                <div id="loading-b" class="py-12 text-center">
+                    <svg class="animate-spin h-8 w-8 text-amber-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-xs text-slate-400 tracking-wide uppercase">Memuatkan Rekod Penyata...</p>
+                </div>
+
+                <!-- Empty -->
+                <div id="emptyState-b" class="hidden py-12 text-center bg-white/5 border border-dashed border-white/10 rounded-2xl">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Tiada rekod pembayaran ditemui buat masa ini.</p>
+                </div>
+
+                <!-- Table -->
+                <div id="tableContainer-b" class="hidden overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/40">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-white/10 bg-white/5 text-[11px] font-bold uppercase tracking-wider text-amber-400 text-center">
+                                <th class="py-4 px-4 text-left">Nama</th>
+                                <th class="py-4 px-4">Hari</th>
+                                <th class="py-4 px-4">Tarikh</th>
+                                <th class="py-4 px-4 text-right">Jumlah Bayaran</th>
+                            </tr>
+                        </thead>
+                        <tbody id="senaraiBayaranBody" class="text-xs divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
+
+                <p class="text-center text-[10px] text-slate-500 mt-8 tracking-wide border-t border-white/5 pt-4">السِّرَاجُ المُنِير · Pelita yang Menerangi</p>
+            </div>
+        </div>
+
+
+        <!-- ══════════════════════════════════════════════════════════
+             PANEL 5 — REKOD PENGELUARAN (senarai table duit keluar)
+        ══════════════════════════════════════════════════════════ -->
+        <div id="panel-rekod-pengeluaran" class="tab-panel w-full max-w-4xl">
+            <div class="glassmorphism green-glow rounded-3xl p-6 md:p-8 relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-48 h-48 bg-emerald-500/5 rounded-full blur-3xl pointer-events-none"></div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-indigo-500/5 rounded-full blur-3xl pointer-events-none"></div>
+
+                <!-- Header -->
+                <div class="flex flex-col md:flex-row md:justify-between md:items-center border-b border-white/10 pb-6 mb-6 gap-4">
+                    <div class="flex items-center gap-3">
+                        <div class="inline-flex items-center justify-center w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/30">
+                            <span class="text-emerald-400 font-bold text-xl">↓</span>
+                        </div>
+                        <div>
+                            <h1 class="text-xl md:text-2xl font-bold tracking-tight text-white">REKOD PENGELUARAN</h1>
+                            <p class="text-[10px] text-slate-500 uppercase tracking-widest mt-0.5">Aliran Duit Keluar</p>
+                        </div>
+                    </div>
+                    <button onclick="muatDataKeluar()" id="btnRefresh-p" class="self-start md:self-auto bg-white/5 hover:bg-white/10 text-xs font-semibold tracking-wide border border-white/10 px-4 py-2.5 rounded-xl transition duration-200 flex items-center gap-2">
+                        <svg id="refreshIcon-p" class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 1121.253 8H18"></path></svg>
+                        <span>KEMASKINI DATA</span>
+                    </button>
+                </div>
+
+                <!-- Stat cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                    <div class="card-premium-fintech rounded-2xl p-6 relative overflow-hidden md:col-span-2 flex flex-col justify-between min-h-[140px]">
+                        <div class="absolute top-0 right-0 p-4 opacity-10">
+                            <span class="text-7xl font-bold text-emerald-400">RM</span>
+                        </div>
+                        <div>
+                            <p class="text-xs font-semibold text-emerald-400 uppercase tracking-wider mb-1">Jumlah Keseluruhan Duit Keluar</p>
+                            <h2 id="totalKeluar" class="text-3xl md:text-4xl font-bold text-white tracking-tight">RM 0.00</h2>
+                        </div>
+                        <p class="text-[11px] text-slate-400 mt-4 flex items-center gap-1.5">
+                            <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block animate-pulse"></span>
+                            Dikemaskini Secara Langsung
+                        </p>
+                    </div>
+                    <div class="bg-white/5 border border-white/5 rounded-2xl p-6 flex flex-col justify-between">
+                        <div>
+                            <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Bilangan Rekod Keluar</p>
+                            <h2 id="bilanganTransaksi" class="text-2xl md:text-3xl font-bold text-white tracking-tight">0</h2>
+                        </div>
+                        <p id="tarikhKini" class="text-[11px] text-slate-500 mt-4"></p>
+                    </div>
+                </div>
+
+                <!-- Search + Filter bar -->
+                <div class="flex flex-col sm:flex-row gap-3 mb-5">
+                    <div class="relative flex-1">
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-emerald-500/60 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 1 1 5 11a6 6 0 0 1 12 0z"/></svg>
+                        <input type="text" id="search-p" class="search-input search-input-green" placeholder="Cari nama, hari, tarikh, jumlah, catatan..." oninput="filterPengeluaranRekod()">
+                    </div>
+                    <div class="relative sm:w-48">
+                        <select id="bulan-p" class="filter-select filter-select-green w-full" onchange="filterPengeluaranRekod()">
+                            <option value="">Semua Bulan</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Sub-header -->
+                <h3 class="text-sm font-semibold text-slate-300 uppercase tracking-wider mb-4 flex items-center gap-2">
+                    <svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path></svg>
+                    Senarai Aliran Keluar
+                    <span id="badge-p" class="hidden ml-auto text-[10px] bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 px-2 py-0.5 rounded-full font-semibold tracking-wider"></span>
+                </h3>
+
+                <!-- Loading -->
+                <div id="loading-p" class="py-12 text-center">
+                    <svg class="animate-spin h-8 w-8 text-emerald-400 mx-auto mb-3" fill="none" viewBox="0 0 24 24">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    <p class="text-xs text-slate-400 tracking-wide uppercase">Memuatkan Rekod Perbelanjaan...</p>
+                </div>
+
+                <!-- Empty -->
+                <div id="emptyState-p" class="hidden py-12 text-center bg-white/5 border border-dashed border-white/10 rounded-2xl">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Tiada rekod pengeluaran ditemui buat masa ini.</p>
+                </div>
+
+                <!-- Table -->
+                <div id="tableContainer-p" class="hidden overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/40">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="border-b border-white/10 bg-white/5 text-[11px] font-bold uppercase tracking-wider text-emerald-400 text-center">
+                                <th class="py-4 px-4 text-left">Nama Pengeluar</th>
+                                <th class="py-4 px-4">Hari</th>
+                                <th class="py-4 px-4">Tarikh</th>
+                                <th class="py-4 px-4 text-left">Tujuan Pengeluaran</th>
+                                <th class="py-4 px-4 text-right">Jumlah Bayaran</th>
+                            </tr>
+                        </thead>
+                        <tbody id="senaraiKeluarBody" class="text-xs divide-y divide-white/5"></tbody>
+                    </table>
+                </div>
+
+                <p class="text-center text-[10px] text-slate-500 mt-8 tracking-wide border-t border-white/5 pt-4">السِّرَاجُ المُنِير · Pelita yang Menerangi</p>
+            </div>
+        </div>
+
+    </div><!-- /scroll-area -->
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         BOTTOM TAB NAVIGATION (5 tabs)
+    ══════════════════════════════════════════════════════════ -->
+    <nav class="bottom-nav flex">
+
+        <!-- Tab: Bayaran -->
+        <button id="tab-bayaran" class="nav-btn active-gold" onclick="switchTab('bayaran')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            <span class="nav-label">Bayaran</span>
+        </button>
+
+        <div class="w-px bg-white/5 self-stretch my-2"></div>
+
+        <!-- Tab: Pengeluaran -->
+        <button id="tab-pengeluaran" class="nav-btn" onclick="switchTab('pengeluaran')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M17 13l-5 5m0 0l-5-5m5 5V6"/>
+            </svg>
+            <span class="nav-label">Pengeluaran</span>
+        </button>
+
+        <div class="w-px bg-white/5 self-stretch my-2"></div>
+
+        <!-- Tab: Penyata (MAE-style) -->
+        <button id="tab-penyata" class="nav-btn" onclick="switchTab('penyata')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+            </svg>
+            <span class="nav-label">Penyata</span>
+        </button>
+
+        <div class="w-px bg-white/5 self-stretch my-2"></div>
+
+        <!-- Tab: Rekod Masuk -->
+        <button id="tab-rekod-bayaran" class="nav-btn" onclick="switchTab('rekod-bayaran')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/>
+            </svg>
+            <span class="nav-label">Rekod Masuk</span>
+        </button>
+
+        <div class="w-px bg-white/5 self-stretch my-2"></div>
+
+        <!-- Tab: Rekod Keluar -->
+        <button id="tab-rekod-pengeluaran" class="nav-btn" onclick="switchTab('rekod-pengeluaran')">
+            <svg class="nav-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 10h16M4 14h16M4 18h16"/>
+            </svg>
+            <span class="nav-label">Rekod Keluar</span>
+        </button>
+
+    </nav>
+
+
+    <!-- ══════════════════════════════════════════════════════════
+         SCRIPTS
+    ══════════════════════════════════════════════════════════ -->
+    <script>
+
+        /* ════════════════════════════════════════════════
+           1. TAB SWITCHING + HASH ROUTING
+        ════════════════════════════════════════════════ */
+        const TAB_CLASSES = {
+            'bayaran'           : 'active-gold',
+            'pengeluaran'       : 'active-green',
+            'penyata'           : 'active-blue',
+            'rekod-bayaran'     : 'active-gold',
+            'rekod-pengeluaran' : 'active-green'
+        };
+
+        function switchTab(tab) {
+            document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+            document.getElementById('panel-' + tab).classList.add('active');
+
+            ['bayaran','pengeluaran','penyata','rekod-bayaran','rekod-pengeluaran'].forEach(t => {
+                const btn = document.getElementById('tab-' + t);
+                btn.className = 'nav-btn' + (t === tab ? ' ' + TAB_CLASSES[t] : '');
+            });
+
+            history.replaceState(null, '', '#' + tab);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+
+            // Lazy-load data for penyata on first visit
+            if (tab === 'penyata' && !psLoaded) { muatSemuaData(); }
+            if (tab === 'rekod-bayaran'     && !rawDataBayaran.length)     { muatData(); }
+            if (tab === 'rekod-pengeluaran' && !rawDataPengeluaran.length) { muatDataKeluar(); }
+        }
+
+        (function initHash() {
+            const hash = window.location.hash.replace('#', '') || 'bayaran';
+            switchTab(['bayaran','pengeluaran','penyata','rekod-bayaran','rekod-pengeluaran'].includes(hash) ? hash : 'bayaran');
+        })();
+
+        window.addEventListener('hashchange', function() {
+            const hash = window.location.hash.replace('#', '');
+            switchTab(['bayaran','pengeluaran','penyata','rekod-bayaran','rekod-pengeluaran'].includes(hash) ? hash : 'bayaran');
+        });
+
+
+        /* ════════════════════════════════════════════════
+           2. SHARED UTILS
+        ════════════════════════════════════════════════ */
+        const HARI_ARRAY = ["Ahad", "Isnin", "Selasa", "Rabu", "Khamis", "Jumaat", "Sabtu"];
+        const BULAN_FULL = ['Januari','Februari','Mac','April','Mei','Jun','Julai','Ogos','September','Oktober','November','Disember'];
+        const options    = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        const tarikhHari = new Date().toLocaleDateString('ms-MY', options);
+
+        document.getElementById('TarikhKini').textContent   = tarikhHari;
+        document.getElementById('tarikhKini').textContent   = tarikhHari;
+        document.getElementById('ps-tarikh-kini').textContent = tarikhHari;
+
+        function todayValue() {
+            return new Date().toISOString().split('T')[0];
+        }
+        function todayHari() {
+            return HARI_ARRAY[new Date().getDay()];
+        }
+        function formatDate(val) {
+            const p = val.split('-');
+            return `${p[2]}/${p[1]}/${p[0]}`;
+        }
+        function extractBulanFromTarikh(tarikh) {
+            if (!tarikh) return null;
+            const parts = tarikh.split('/');
+            if (parts.length < 3) return null;
+            const mm = parseInt(parts[1], 10);
+            const yyyy = parts[2];
+            return `${yyyy}-${String(mm).padStart(2,'0')}`;
+        }
+        function bulanLabel(key) {
+            const [yyyy, mm] = key.split('-');
+            return `${BULAN_FULL[parseInt(mm,10)-1]} ${yyyy}`;
+        }
+        function populateBulanFilter(selectId, dataArr, tarikhField) {
+            const select  = document.getElementById(selectId);
+            const current = select.value;
+            const seen    = new Set();
+            const months  = [];
+            dataArr.forEach(item => {
+                const key = extractBulanFromTarikh(item[tarikhField]);
+                if (key && !seen.has(key)) { seen.add(key); months.push(key); }
+            });
+            months.sort().reverse();
+            select.innerHTML = '<option value="">Semua Bulan</option>';
+            months.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m; opt.textContent = bulanLabel(m);
+                if (m === current) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+        function highlight(text, query) {
+            if (!query) return text;
+            const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return String(text).replace(new RegExp(`(${escaped})`, 'gi'), '<mark>$1</mark>');
+        }
+        function highlightGreen(text, query) {
+            if (!query) return text;
+            const escaped = query.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+            return String(text).replace(new RegExp(`(${escaped})`, 'gi'), '<mark class="mark-green">$1</mark>');
+        }
+        function showToast(id, message, isSuccess) {
+            const el = document.getElementById(id);
+            el.textContent = message;
+            el.className = `block mb-4 p-3 rounded-xl text-center text-sm font-medium transition-all duration-300 ${
+                isSuccess
+                    ? 'bg-emerald-500/10 border border-emerald-500/30 text-emerald-400'
+                    : 'bg-rose-500/10 border border-rose-500/30 text-rose-400'
+            }`;
+        }
+
+
+        /* ════════════════════════════════════════════════
+           3. FORM BAYARAN (tabung-kelas.html)
+        ════════════════════════════════════════════════ */
+        const SCRIPT_URL_BAYARAN  = "https://script.google.com/macros/s/AKfycbzlbBzbJQTWfzT25aCoK5yjEXukkUtIvucgovAwfqF_uCLuv_cXKIormbBNf5e3wyRU/exec";
+        const WHATSAPP_NUMBER     = "601139640931";
+
+        document.getElementById('b-tarikh').value = todayValue();
+        document.getElementById('b-hari').value   = todayHari();
+
+        document.getElementById('paymentForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn  = document.getElementById('b-submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Menghantar...</span>`;
+
+            const nama   = document.getElementById('b-nama').value;
+            const hari   = document.getElementById('b-hari').value;
+            const tarikh = document.getElementById('b-tarikh').value;
+            const jumlah = document.getElementById('b-jumlah').value;
+            const formattedDate = formatDate(tarikh);
+
+            const fd = new FormData();
+            fd.append('nama', nama); fd.append('hari', hari);
+            fd.append('tarikh', formattedDate); fd.append('jumlah', jumlah);
+
+            fetch(SCRIPT_URL_BAYARAN, { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        showToast('toast-bayaran', "Alhamdulillah, rekod berjaya disimpan! Sila tunggu sebentar...", true);
+                        setTimeout(() => { bukaWhatsApp(nama, hari, formattedDate, jumlah); resetBayaranForm(); }, 1500);
+                    } else {
+                        showToast('toast-bayaran', "Gagal simpan ke Sheet: " + result.message, false);
+                        btn.disabled = false;
+                        btn.innerHTML = `<span>HANTAR REKOD &amp; NOTIFIKASI</span>`;
+                    }
+                })
+                .catch(() => {
+                    showToast('toast-bayaran', "Ralat sistem. Menghala terus ke WhatsApp...", false);
+                    setTimeout(() => { bukaWhatsApp(nama, hari, formattedDate, jumlah); resetBayaranForm(); }, 1500);
+                });
+        });
+
+        function bukaWhatsApp(nama, hari, tarikh, jumlah) {
+            const text = `Nama : ${nama}\nHari : ${hari}\nTarikh : ${tarikh}\nJumlah RM : ${parseFloat(jumlah).toFixed(2)}\n\nLihat senarai tabung kelas : https://as-sirajul-munir.pages.dev/rekod-penyata#bayaran`;
+            window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`, '_blank');
+        }
+        function resetBayaranForm() {
+            document.getElementById('paymentForm').reset();
+            document.getElementById('b-tarikh').value = todayValue();
+            document.getElementById('b-hari').value   = todayHari();
+            const btn = document.getElementById('b-submitBtn');
+            btn.disabled = false;
+            btn.innerHTML = `<span>HANTAR REKOD &amp; NOTIFIKASI</span>`;
+        }
+
+
+        /* ════════════════════════════════════════════════
+           4. FORM PENGELUARAN (tabung-kelas.html)
+        ════════════════════════════════════════════════ */
+        const SCRIPT_URL_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzhgqrQNo-7Y26emyOHqzd0iCi1HprgYhNj3LkgXT0GUcEw1xHYiF6CKAnn8ywWDaNa/exec";
+
+        document.getElementById('p-tarikh').value = todayValue();
+        document.getElementById('p-hari').value   = todayHari();
+
+        document.getElementById('expenseForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const btn = document.getElementById('p-submitBtn');
+            btn.disabled = true;
+            btn.innerHTML = `<span>Menghantar...</span>`;
+
+            const nama    = document.getElementById('p-nama').value;
+            const hari    = document.getElementById('p-hari').value;
+            const tarikh  = document.getElementById('p-tarikh').value;
+            const jumlah  = document.getElementById('p-jumlah').value;
+            const catatan = document.getElementById('p-catatan').value;
+            const formattedDate = formatDate(tarikh);
+
+            const fd = new FormData();
+            fd.append('nama', nama); fd.append('hari', hari);
+            fd.append('tarikh', formattedDate); fd.append('jumlah', jumlah);
+            fd.append('catatan', catatan);
+
+            fetch(SCRIPT_URL_PENGELUARAN, { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(result => {
+                    if (result.status === 'success') {
+                        showToast('toast-pengeluaran', "Rekod aliran keluar wang berjaya disimpan!", true);
+                        resetPengeluaranForm();
+                    } else {
+                        showToast('toast-pengeluaran', "Gagal simpan: " + result.message, false);
+                        btn.disabled = false;
+                        btn.innerHTML = `<span>REKOD ALIRAN KELUAR</span>`;
+                    }
+                })
+                .catch(() => {
+                    showToast('toast-pengeluaran', "Ralat sistem rangkaian cloud.", false);
+                    btn.disabled = false;
+                    btn.innerHTML = `<span>REKOD ALIRAN KELUAR</span>`;
+                });
+        });
+
+        function resetPengeluaranForm() {
+            document.getElementById('expenseForm').reset();
+            document.getElementById('p-tarikh').value = todayValue();
+            document.getElementById('p-hari').value   = todayHari();
+            const btn = document.getElementById('p-submitBtn');
+            btn.disabled = false;
+            btn.innerHTML = `<span>REKOD ALIRAN KELUAR</span>`;
+        }
+
+
+        /* ════════════════════════════════════════════════
+           5. PENYATA — MAE-STYLE (baki + senarai gabungan)
+        ════════════════════════════════════════════════ */
+        const SCRIPT_URL_REKOD_BAYARAN     = "https://script.google.com/macros/s/AKfycbwWVvZjYPrJ1WamFY_6BwmfySrJAkmoZq4bG__tKk1QBpVYqCUyqcRjUsK_mfxQJiGF/exec";
+        const SCRIPT_URL_REKOD_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzZsYJXGbHT6SowJ3kBgWLmKLvZUvaEKfCsvhh-FT-mx3rjbcMk_F2Q1R39QzISjP5w/exec";
+
+        let psLoaded           = false;
+        let psRawMasuk         = [];
+        let psRawKeluar        = [];
+        let psGabungan         = [];
+
+        function muatSemuaData() {
+            psLoaded = true;
+            const loading = document.getElementById('ps-loading');
+            const list    = document.getElementById('ps-list');
+            const empty   = document.getElementById('ps-empty');
+            const icon    = document.getElementById('refreshIcon-ps');
+
+            icon.classList.add('animate-spin');
+            loading.classList.remove('hidden');
+            list.classList.add('hidden');
+            empty.classList.add('hidden');
+
+            const fetchMasuk  = fetch(`${SCRIPT_URL_REKOD_BAYARAN}?action=getRecords`).then(r => r.json()).catch(() => []);
+            const fetchKeluar = fetch(`${SCRIPT_URL_REKOD_PENGELUARAN}?action=getExpenseRecords`).then(r => r.json()).catch(() => []);
+
+            Promise.all([fetchMasuk, fetchKeluar]).then(([dataMasuk, dataKeluar]) => {
+                psRawMasuk  = Array.isArray(dataMasuk)  ? dataMasuk  : [];
+                psRawKeluar = Array.isArray(dataKeluar) ? dataKeluar : [];
+
+                // Also populate rekod panel data
+                rawDataBayaran     = psRawMasuk;
+                rawDataPengeluaran = psRawKeluar;
+
+                // Build gabungan with type tag, sort by date desc
+                psGabungan = [
+                    ...psRawMasuk.map(i  => ({ ...i, _jenis: 'masuk'  })),
+                    ...psRawKeluar.map(i => ({ ...i, _jenis: 'keluar' }))
+                ].sort((a, b) => {
+                    const toMs = t => { const p = t.split('/'); return new Date(`${p[2]}-${p[1]}-${p[0]}`).getTime(); };
+                    return toMs(b.tarikh) - toMs(a.tarikh);
+                });
+
+                kiraKiraBaki();
+                populateBulanFilterPs();
+                renderPenyata(psGabungan, '');
+
+                // Also populate rekod panels
+                if (psRawMasuk.length)  { populateBulanFilter('bulan-b', psRawMasuk,  'tarikh'); binaJadualBayaran(psRawMasuk, ''); }
+                if (psRawKeluar.length) { populateBulanFilter('bulan-p', psRawKeluar, 'tarikh'); binaJadualPengeluaran(psRawKeluar, ''); }
+
+            }).finally(() => {
+                icon.classList.remove('animate-spin');
+                loading.classList.add('hidden');
+            });
+        }
+
+        function kiraKiraBaki() {
+            let totalMasuk  = 0;
+            let totalKeluar = 0;
+            psRawMasuk.forEach(i  => { totalMasuk  += parseFloat(i.jumlah)  || 0; });
+            psRawKeluar.forEach(i => { totalKeluar += parseFloat(i.jumlah) || 0; });
+            const baki = totalMasuk - totalKeluar;
+
+            document.getElementById('ps-total-masuk').textContent  = `RM ${totalMasuk.toFixed(2)}`;
+            document.getElementById('ps-total-keluar').textContent = `RM ${totalKeluar.toFixed(2)}`;
+            document.getElementById('ps-count-masuk').textContent  = `${psRawMasuk.length} transaksi`;
+            document.getElementById('ps-count-keluar').textContent = `${psRawKeluar.length} transaksi`;
+            document.getElementById('ps-baki').textContent         = `RM ${baki.toFixed(2)}`;
+
+            // Also update rekod panel totals
+            document.getElementById('totalBayaran').textContent    = `RM ${totalMasuk.toFixed(2)}`;
+            document.getElementById('totalTransaksi').textContent  = psRawMasuk.length;
+            document.getElementById('totalKeluar').textContent     = `RM ${totalKeluar.toFixed(2)}`;
+            document.getElementById('bilanganTransaksi').textContent = psRawKeluar.length;
+
+            const badge = document.getElementById('ps-baki-status');
+            if (baki > 0) {
+                badge.textContent   = 'POSITIF';
+                badge.className     = 'text-xs px-2 py-1 rounded-full font-semibold mb-1 bg-emerald-500/15 text-emerald-400 border border-emerald-500/20';
+                badge.classList.remove('hidden');
+            } else if (baki < 0) {
+                badge.textContent   = 'NEGATIF';
+                badge.className     = 'text-xs px-2 py-1 rounded-full font-semibold mb-1 bg-rose-500/15 text-rose-400 border border-rose-500/20';
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function populateBulanFilterPs() {
+            const select = document.getElementById('ps-bulan');
+            const current = select.value;
+            const seen = new Set();
+            const months = [];
+            psGabungan.forEach(item => {
+                const key = extractBulanFromTarikh(item.tarikh);
+                if (key && !seen.has(key)) { seen.add(key); months.push(key); }
+            });
+            months.sort().reverse();
+            select.innerHTML = '<option value="">Semua Bulan</option>';
+            months.forEach(m => {
+                const opt = document.createElement('option');
+                opt.value = m; opt.textContent = bulanLabel(m);
+                if (m === current) opt.selected = true;
+                select.appendChild(opt);
+            });
+        }
+
+        function filterPenyata() {
+            const q     = document.getElementById('ps-search').value.trim().toLowerCase();
+            const bulan = document.getElementById('ps-bulan').value;
+            const jenis = document.getElementById('ps-jenis').value;
+
+            let filtered = psGabungan.filter(item => {
+                if (bulan) {
+                    const key = extractBulanFromTarikh(item.tarikh);
+                    if (key !== bulan) return false;
+                }
+                if (jenis && item._jenis !== jenis) return false;
+                if (q) {
+                    const haystack = [item.nama, item.hari, item.tarikh,
+                        item.catatan || '', parseFloat(item.jumlah).toFixed(2)].join(' ').toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+
+            renderPenyata(filtered, q);
+            const badge = document.getElementById('ps-badge');
+            if ((q || bulan || jenis) && filtered.length < psGabungan.length) {
+                badge.textContent = `${filtered.length} daripada ${psGabungan.length} rekod`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+        function renderPenyata(data, query) {
+            const list  = document.getElementById('ps-list');
+            const empty = document.getElementById('ps-empty');
+            list.innerHTML = '';
+
+            if (data.length === 0) {
+                list.classList.add('hidden');
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+            list.classList.remove('hidden');
+
+            // Group by date
+            const grouped = {};
+            data.forEach(item => {
+                const key = item.tarikh || 'Tiada Tarikh';
+                if (!grouped[key]) grouped[key] = [];
+                grouped[key].push(item);
+            });
+
+            Object.keys(grouped).forEach(tDate => {
+                // Date separator
+                const sep = document.createElement('div');
+                sep.className = 'flex items-center gap-3 py-1';
+                sep.innerHTML = `
+                    <div class="flex-1 h-px bg-white/5"></div>
+                    <span class="text-[10px] text-slate-500 font-semibold uppercase tracking-widest whitespace-nowrap">${tDate}</span>
+                    <div class="flex-1 h-px bg-white/5"></div>
+                `;
+                list.appendChild(sep);
+
+                grouped[tDate].forEach(item => {
+                    const isMasuk = item._jenis === 'masuk';
+                    const q = query || '';
+                    const div = document.createElement('div');
+                    div.className = `txn-item p-4 flex items-center gap-4 ${isMasuk ? 'txn-in' : 'txn-out'}`;
+
+                    const iconHtml = isMasuk
+                        ? `<div class="flex-shrink-0 w-10 h-10 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+                               <svg class="w-5 h-5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 11l5-5m0 0l5 5m-5-5v12"/></svg>
+                           </div>`
+                        : `<div class="flex-shrink-0 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                               <svg class="w-5 h-5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 13l-5 5m0 0l-5-5m5 5V6"/></svg>
+                           </div>`;
+
+                    const pillHtml = isMasuk
+                        ? `<span class="pill-in text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Masuk</span>`
+                        : `<span class="pill-out text-[9px] px-1.5 py-0.5 rounded-full font-bold uppercase tracking-wider">Keluar</span>`;
+
+                    const amountColor = isMasuk ? 'text-amber-400' : 'text-emerald-400';
+                    const sign        = isMasuk ? '+' : '-';
+                    const catatan     = (!isMasuk && item.catatan) ? `<p class="text-[10px] text-slate-500 italic truncate max-w-[200px]">${highlight(item.catatan, q)}</p>` : '';
+
+                    div.innerHTML = `
+                        ${iconHtml}
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center gap-2 mb-0.5">
+                                <p class="text-sm font-semibold text-white truncate">${highlight(item.nama, q)}</p>
+                                ${pillHtml}
+                            </div>
+                            <p class="text-[11px] text-slate-500">${highlight(item.hari || '', q)}</p>
+                            ${catatan}
+                        </div>
+                        <div class="flex-shrink-0 text-right">
+                            <p class="text-base font-bold ${amountColor}">${sign}RM ${parseFloat(item.jumlah).toFixed(2)}</p>
+                        </div>
+                    `;
+                    list.appendChild(div);
+                });
+            });
+        }
+
+
+        /* ════════════════════════════════════════════════
+           6. REKOD PANEL — BAYARAN (rekod-penyata.html)
+        ════════════════════════════════════════════════ */
+        let rawDataBayaran = [];
+
+        function muatData() {
+            const loading        = document.getElementById('loading-b');
+            const tableContainer = document.getElementById('tableContainer-b');
+            const emptyState     = document.getElementById('emptyState-b');
+            const refreshIcon    = document.getElementById('refreshIcon-b');
+
+            refreshIcon.classList.add('animate-spin');
+            loading.classList.remove('hidden');
+            tableContainer.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            fetch(`${SCRIPT_URL_REKOD_BAYARAN}?action=getRecords`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        rawDataBayaran = data;
+                        populateBulanFilter('bulan-b', data, 'tarikh');
+                        binaJadualBayaran(data, '');
+                    } else {
+                        loading.classList.add('hidden');
+                        emptyState.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    emptyState.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider p-4">Ralat rangkaian untuk mendapatkan penyata data.</p>`;
+                })
+                .finally(() => { refreshIcon.classList.remove('animate-spin'); });
+        }
+
+        function filterBayaran() {
+            const q     = document.getElementById('search-b').value.trim().toLowerCase();
+            const bulan = document.getElementById('bulan-b').value;
+
+            let filtered = rawDataBayaran.filter(item => {
+                if (bulan) {
+                    const key = extractBulanFromTarikh(item.tarikh);
+                    if (key !== bulan) return false;
+                }
+                if (q) {
+                    const haystack = [item.nama, item.hari, item.tarikh,
+                        parseFloat(item.jumlah).toFixed(2)].join(' ').toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+
+            renderBayaranRows(filtered, q);
+            updateBadgeBayaran(filtered.length, rawDataBayaran.length, q || bulan);
+        }
+
+        function binaJadualBayaran(data, query) {
+            renderBayaranRows(data, query || '');
+            let total = 0;
+            rawDataBayaran.forEach(i => { total += parseFloat(i.jumlah); });
+            document.getElementById('totalBayaran').textContent   = `RM ${total.toFixed(2)}`;
+            document.getElementById('totalTransaksi').textContent = rawDataBayaran.length;
+            document.getElementById('loading-b').classList.add('hidden');
+            document.getElementById('tableContainer-b').classList.remove('hidden');
+        }
+
+        function renderBayaranRows(data, query) {
+            const body = document.getElementById('senaraiBayaranBody');
+            body.innerHTML = '';
+
+            if (data.length === 0) {
+                body.innerHTML = `<tr class="no-result-row"><td colspan="4" class="py-10 text-center text-xs text-slate-500 uppercase tracking-wider">Tiada rekod sepadan ditemui.</td></tr>`;
+                document.getElementById('tableContainer-b').classList.remove('hidden');
+                document.getElementById('loading-b').classList.add('hidden');
+                return;
+            }
+
+            data.forEach(item => {
+                const q  = query || '';
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/[0.02] transition duration-150 text-center text-slate-300";
+                tr.innerHTML = `
+                    <td class="py-4 px-4 text-left font-medium text-white max-w-[150px] truncate">${highlight(item.nama, q)}</td>
+                    <td class="py-4 px-4 text-slate-400">${highlight(item.hari, q)}</td>
+                    <td class="py-4 px-4 text-slate-400">${highlight(item.tarikh, q)}</td>
+                    <td class="py-4 px-4 text-right font-semibold text-amber-400">${highlight('RM ' + parseFloat(item.jumlah).toFixed(2), q)}</td>
+                `;
+                body.appendChild(tr);
+            });
+
+            document.getElementById('loading-b').classList.add('hidden');
+            document.getElementById('tableContainer-b').classList.remove('hidden');
+        }
+
+        function updateBadgeBayaran(shown, total, active) {
+            const badge = document.getElementById('badge-b');
+            if (active && shown < total) {
+                badge.textContent = `${shown} daripada ${total} rekod`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+
+        /* ════════════════════════════════════════════════
+           7. REKOD PANEL — PENGELUARAN (rekod-penyata.html)
+        ════════════════════════════════════════════════ */
+        let rawDataPengeluaran = [];
+
+        function muatDataKeluar() {
+            const loading        = document.getElementById('loading-p');
+            const tableContainer = document.getElementById('tableContainer-p');
+            const emptyState     = document.getElementById('emptyState-p');
+            const refreshIcon    = document.getElementById('refreshIcon-p');
+
+            refreshIcon.classList.add('animate-spin');
+            loading.classList.remove('hidden');
+            tableContainer.classList.add('hidden');
+            emptyState.classList.add('hidden');
+
+            fetch(`${SCRIPT_URL_REKOD_PENGELUARAN}?action=getExpenseRecords`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data && data.length > 0) {
+                        rawDataPengeluaran = data;
+                        populateBulanFilter('bulan-p', data, 'tarikh');
+                        binaJadualPengeluaran(data, '');
+                    } else {
+                        loading.classList.add('hidden');
+                        emptyState.classList.remove('hidden');
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    loading.classList.add('hidden');
+                    emptyState.classList.remove('hidden');
+                    emptyState.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider p-4">Ralat rangkaian untuk mendapatkan data pengeluaran.</p>`;
+                })
+                .finally(() => { refreshIcon.classList.remove('animate-spin'); });
+        }
+
+        function filterPengeluaranRekod() {
+            const q     = document.getElementById('search-p').value.trim().toLowerCase();
+            const bulan = document.getElementById('bulan-p').value;
+
+            let filtered = rawDataPengeluaran.filter(item => {
+                if (bulan) {
+                    const key = extractBulanFromTarikh(item.tarikh);
+                    if (key !== bulan) return false;
+                }
+                if (q) {
+                    const haystack = [item.nama, item.hari, item.tarikh,
+                        item.catatan || '', parseFloat(item.jumlah).toFixed(2)].join(' ').toLowerCase();
+                    if (!haystack.includes(q)) return false;
+                }
+                return true;
+            });
+
+            renderPengeluaranRows(filtered, q);
+            updateBadgePengeluaran(filtered.length, rawDataPengeluaran.length, q || bulan);
+        }
+
+        function binaJadualPengeluaran(data, query) {
+            renderPengeluaranRows(data, query || '');
+            let total = 0;
+            rawDataPengeluaran.forEach(i => { total += parseFloat(i.jumlah); });
+            document.getElementById('totalKeluar').textContent       = `RM ${total.toFixed(2)}`;
+            document.getElementById('bilanganTransaksi').textContent = rawDataPengeluaran.length;
+            document.getElementById('loading-p').classList.add('hidden');
+            document.getElementById('tableContainer-p').classList.remove('hidden');
+        }
+
+        function renderPengeluaranRows(data, query) {
+            const body = document.getElementById('senaraiKeluarBody');
+            body.innerHTML = '';
+
+            if (data.length === 0) {
+                body.innerHTML = `<tr class="no-result-row"><td colspan="5" class="py-10 text-center text-xs text-slate-500 uppercase tracking-wider">Tiada rekod sepadan ditemui.</td></tr>`;
+                document.getElementById('tableContainer-p').classList.remove('hidden');
+                document.getElementById('loading-p').classList.add('hidden');
+                return;
+            }
+
+            data.forEach(item => {
+                const q  = query || '';
+                const tr = document.createElement('tr');
+                tr.className = "hover:bg-white/[0.02] transition duration-150 text-center text-slate-300";
+                tr.innerHTML = `
+                    <td class="py-4 px-4 text-left font-medium text-white max-w-[150px] truncate">${highlightGreen(item.nama, q)}</td>
+                    <td class="py-4 px-4 text-slate-400">${highlightGreen(item.hari, q)}</td>
+                    <td class="py-4 px-4 text-slate-400">${highlightGreen(item.tarikh, q)}</td>
+                    <td class="py-4 px-4 text-left text-slate-400 italic max-w-[220px] break-words">${highlightGreen(item.catatan || '-', q)}</td>
+                    <td class="py-4 px-4 text-right font-semibold text-emerald-400">${highlightGreen('RM ' + parseFloat(item.jumlah).toFixed(2), q)}</td>
+                `;
+                body.appendChild(tr);
+            });
+
+            document.getElementById('loading-p').classList.add('hidden');
+            document.getElementById('tableContainer-p').classList.remove('hidden');
+        }
+
+        function updateBadgePengeluaran(shown, total, active) {
+            const badge = document.getElementById('badge-p');
+            if (active && shown < total) {
+                badge.textContent = `${shown} daripada ${total} rekod`;
+                badge.classList.remove('hidden');
+            } else {
+                badge.classList.add('hidden');
+            }
+        }
+
+
+        /* ════════════════════════════════════════════════
+           8. AUTO-LOAD ON PAGE READY
+        ════════════════════════════════════════════════ */
+        window.onload = function() {
+            // Only auto-load if landing on penyata/rekod tabs
+            const hash = window.location.hash.replace('#', '');
+            if (hash === 'penyata') {
+                muatSemuaData();
+            } else if (hash === 'rekod-bayaran') {
+                muatData();
+            } else if (hash === 'rekod-pengeluaran') {
+                muatDataKeluar();
+            }
+            // Form tabs don't need auto-load
+        };
+
+    </script>
+</body>
+</html>

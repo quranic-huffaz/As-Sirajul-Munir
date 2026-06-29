@@ -922,7 +922,7 @@
         });
 
         function bukaWhatsApp(nama, hari, tarikh, jumlah) {
-            const text = `Nama : ${nama}\nHari : ${hari}\nTarikh : ${tarikh}\nJumlah RM : ${parseFloat(jumlah).toFixed(2)}\n\nLihat senarai tabung kelas : https://as-sirajul-munir.pages.dev/rekod-penyata#bayaran`;
+            const text = `Nama : ${nama}\nHari : ${hari}\nTarikh : ${tarikh}\nJumlah RM : ${parseFloat(jumlah).toFixed(2)}\n\nLihat penyata tabung kelas : https://as-sirajul-munir.pages.dev/tabung-kelas#penyata`;
             window.open(`https://api.whatsapp.com/send?phone=${WHATSAPP_NUMBER}&text=${encodeURIComponent(text)}`, '_blank');
         }
         function resetBayaranForm() {

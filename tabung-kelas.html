@@ -766,6 +766,24 @@
     <script>
 
         /* ════════════════════════════════════════════════
+           0. FIX KRITIKAL: Deklarasi state global didahulukan
+           ────────────────────────────────────────────────
+           PUNCA UTAMA data tak muncul: switchTab()/initHash() di
+           bawah memanggil psLoaded, rawDataBayaran, rawDataPengeluaran
+           SEBELUM baris "let ..." asalnya dijalankan (ia asalnya
+           terletak jauh di bawah, dalam Bahagian 5/6/7). Ini punca
+           "Temporal Dead Zone" ReferenceError yang terus MENGHENTIKAN
+           seluruh skrip daripada berjalan (spinner "Memuatkan..."
+           berputar selama-lamanya sebab kod fetch tak sempat jalan).
+           Fix: isytihar semua pembolehubah ini di PALING ATAS skrip. */
+        let psLoaded           = false;
+        let psRawMasuk         = [];
+        let psRawKeluar        = [];
+        let psGabungan         = [];
+        let rawDataBayaran     = [];
+        let rawDataPengeluaran = [];
+
+        /* ════════════════════════════════════════════════
            1. TAB SWITCHING + HASH ROUTING
         ════════════════════════════════════════════════ */
         const TAB_CLASSES = {
@@ -1040,11 +1058,6 @@
         const SCRIPT_URL_REKOD_BAYARAN     = "https://script.google.com/macros/s/AKfycbwWVvZjYPrJ1WamFY_6BwmfySrJAkmoZq4bG__tKk1QBpVYqCUyqcRjUsK_mfxQJiGF/exec";
         const SCRIPT_URL_REKOD_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzZsYJXGbHT6SowJ3kBgWLmKLvZUvaEKfCsvhh-FT-mx3rjbcMk_F2Q1R39QzISjP5w/exec";
 
-        let psLoaded           = false;
-        let psRawMasuk         = [];
-        let psRawKeluar        = [];
-        let psGabungan         = [];
-
         function muatSemuaData() {
             psLoaded = true;
             const loading = document.getElementById('ps-loading');
@@ -1259,7 +1272,6 @@
         /* ════════════════════════════════════════════════
            6. REKOD PANEL — BAYARAN (rekod-penyata.html)
         ════════════════════════════════════════════════ */
-        let rawDataBayaran = [];
 
         function muatData() {
             const loading        = document.getElementById('loading-b');
@@ -1367,7 +1379,6 @@
         /* ════════════════════════════════════════════════
            7. REKOD PANEL — PENGELUARAN (rekod-penyata.html)
         ════════════════════════════════════════════════ */
-        let rawDataPengeluaran = [];
 
         function muatDataKeluar() {
             const loading        = document.getElementById('loading-p');

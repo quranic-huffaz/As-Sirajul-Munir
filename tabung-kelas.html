@@ -877,11 +877,40 @@
             }`;
         }
 
+        /* ── FIX: Google Apps Script GET request boleh sangat perlahan semasa
+           "cold start" (terutamanya rangkaian mobile/data selular), dan sesetengah
+           mobile browser (contohnya Safari iOS) turut cache respons fetch GET
+           secara agresif sehingga data lama/kosong terus dipaparkan walaupun
+           sheet sudah dikemaskini. fetchWithTimeout() menambah:
+             1. Cache-buster (&_ts=) supaya URL sentiasa unik → elak cache mobile
+             2. cache:'no-store' → paksa browser abaikan cache
+             3. AbortController timeout (25 saat) → elak "loading" tergantung selama-lamanya
+           ── */
+        function fetchWithTimeout(url, timeoutMs = 25000) {
+            const controller = new AbortController();
+            const timer = setTimeout(() => controller.abort(), timeoutMs);
+            const bustedUrl = url + (url.includes('?') ? '&' : '?') + '_ts=' + Date.now();
+
+            return fetch(bustedUrl, { method: 'GET', cache: 'no-store', signal: controller.signal })
+                .then(r => {
+                    clearTimeout(timer);
+                    if (!r.ok) throw new Error('HTTP ' + r.status);
+                    return r.json();
+                })
+                .catch(err => {
+                    clearTimeout(timer);
+                    if (err.name === 'AbortError') {
+                        throw new Error('Sambungan terlalu lama (timeout). Sila semak rangkaian internet anda.');
+                    }
+                    throw err;
+                });
+        }
+
 
         /* ════════════════════════════════════════════════
            3. FORM BAYARAN (tabung-kelas.html)
         ════════════════════════════════════════════════ */
-        const SCRIPT_URL_BAYARAN  = "https://script.google.com/macros/s/AKfycbzlbBzbJQTWfzT25aCoK5yjEXukkUtIvucgovAwfqF_uCLuv_cXKIormbBNf5e3wyRU/exec";
+        const SCRIPT_URL_BAYARAN  = "https://script.google.com/macros/s/AKfycbwWVvZjYPrJ1WamFY_6BwmfySrJAkmoZq4bG__tKk1QBpVYqCUyqcRjUsK_mfxQJiGF/exec";
         const WHATSAPP_NUMBER     = "601139640931";
 
         document.getElementById('b-tarikh').value = todayValue();
@@ -938,7 +967,7 @@
         /* ════════════════════════════════════════════════
            4. FORM PENGELUARAN (tabung-kelas.html)
         ════════════════════════════════════════════════ */
-        const SCRIPT_URL_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzhgqrQNo-7Y26emyOHqzd0iCi1HprgYhNj3LkgXT0GUcEw1xHYiF6CKAnn8ywWDaNa/exec";
+        const SCRIPT_URL_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzZsYJXGbHT6SowJ3kBgWLmKLvZUvaEKfCsvhh-FT-mx3rjbcMk_F2Q1R39QzISjP5w/exec";
 
         document.getElementById('p-tarikh').value = todayValue();
         document.getElementById('p-hari').value   = todayHari();
@@ -993,6 +1022,21 @@
         /* ════════════════════════════════════════════════
            5. PENYATA — MAE-STYLE (baki + senarai gabungan)
         ════════════════════════════════════════════════ */
+        /* ⚠️ PENTING — SEMAK INI DAHULU:
+           tabung-kelas.gs (backend Bayaran) mengendalikan KEDUA-DUA doPost() DAN
+           doGet(action=getRecords) DALAM SATU fail/deployment yang SAMA.
+           Jadi SCRIPT_URL_BAYARAN (di atas, untuk hantar borang) dan
+           SCRIPT_URL_REKOD_BAYARAN (di bawah, untuk tarik senarai) SEHARUSNYA
+           merujuk kepada URL /exec yang SAMA PERSIS (satu sahaja deployment).
+           Begitu juga untuk SCRIPT_URL_PENGELUARAN & SCRIPT_URL_REKOD_PENGELUARAN.
+           Jika kedua-dua URL tersebut BERBEZA (macam sekarang), kemungkinan besar
+           salah satu adalah deployment/versi LAMA yang tidak dikemaskini — inilah
+           punca paling biasa data "hilang"/tidak muncul. Di Apps Script:
+           Deploy → Manage deployments → pastikan guna deployment yang sama,
+           dan setiap kali kod .gs diubah, klik Deploy → New deployment (bukan
+           hanya Save) supaya URL /exec sentiasa memaparkan kod terkini.
+           Access mesti ditetapkan "Anyone" (bukan "Anyone with Google account")
+           supaya boleh diakses tanpa log masuk di telefon. */
         const SCRIPT_URL_REKOD_BAYARAN     = "https://script.google.com/macros/s/AKfycbwWVvZjYPrJ1WamFY_6BwmfySrJAkmoZq4bG__tKk1QBpVYqCUyqcRjUsK_mfxQJiGF/exec";
         const SCRIPT_URL_REKOD_PENGELUARAN = "https://script.google.com/macros/s/AKfycbzZsYJXGbHT6SowJ3kBgWLmKLvZUvaEKfCsvhh-FT-mx3rjbcMk_F2Q1R39QzISjP5w/exec";
 
@@ -1013,12 +1057,21 @@
             list.classList.add('hidden');
             empty.classList.add('hidden');
 
-            const fetchMasuk  = fetch(`${SCRIPT_URL_REKOD_BAYARAN}?action=getRecords`).then(r => r.json()).catch(() => []);
-            const fetchKeluar = fetch(`${SCRIPT_URL_REKOD_PENGELUARAN}?action=getExpenseRecords`).then(r => r.json()).catch(() => []);
+            const fetchMasuk  = fetchWithTimeout(`${SCRIPT_URL_REKOD_BAYARAN}?action=getRecords`).catch(err => { console.error('Ralat ambil data masuk:', err); return { __error: err.message }; });
+            const fetchKeluar = fetchWithTimeout(`${SCRIPT_URL_REKOD_PENGELUARAN}?action=getExpenseRecords`).catch(err => { console.error('Ralat ambil data keluar:', err); return { __error: err.message }; });
 
             Promise.all([fetchMasuk, fetchKeluar]).then(([dataMasuk, dataKeluar]) => {
+                const gagalMasuk  = dataMasuk  && dataMasuk.__error;
+                const gagalKeluar = dataKeluar && dataKeluar.__error;
+
                 psRawMasuk  = Array.isArray(dataMasuk)  ? dataMasuk  : [];
                 psRawKeluar = Array.isArray(dataKeluar) ? dataKeluar : [];
+
+                if (gagalMasuk || gagalKeluar) {
+                    empty.classList.remove('hidden');
+                    empty.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider mb-3">Gagal memuatkan sebahagian/semua data.<br>${(gagalMasuk||'')} ${(gagalKeluar||'')}</p>
+                        <button onclick="muatSemuaData()" class="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl font-semibold tracking-wide">CUBA LAGI</button>`;
+                }
 
                 // Also populate rekod panel data
                 rawDataBayaran     = psRawMasuk;
@@ -1219,8 +1272,7 @@
             tableContainer.classList.add('hidden');
             emptyState.classList.add('hidden');
 
-            fetch(`${SCRIPT_URL_REKOD_BAYARAN}?action=getRecords`)
-                .then(r => r.json())
+            fetchWithTimeout(`${SCRIPT_URL_REKOD_BAYARAN}?action=getRecords`)
                 .then(data => {
                     if (data && data.length > 0) {
                         rawDataBayaran = data;
@@ -1229,13 +1281,15 @@
                     } else {
                         loading.classList.add('hidden');
                         emptyState.classList.remove('hidden');
+                        emptyState.innerHTML = `<p class="text-xs text-slate-400 uppercase tracking-wider">Tiada rekod pembayaran ditemui buat masa ini.</p>`;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     loading.classList.add('hidden');
                     emptyState.classList.remove('hidden');
-                    emptyState.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider p-4">Ralat rangkaian untuk mendapatkan penyata data.</p>`;
+                    emptyState.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider p-4 mb-3">Ralat rangkaian: ${error.message}</p>
+                        <button onclick="muatData()" class="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl font-semibold tracking-wide">CUBA LAGI</button>`;
                 })
                 .finally(() => { refreshIcon.classList.remove('animate-spin'); });
         }
@@ -1326,8 +1380,7 @@
             tableContainer.classList.add('hidden');
             emptyState.classList.add('hidden');
 
-            fetch(`${SCRIPT_URL_REKOD_PENGELUARAN}?action=getExpenseRecords`)
-                .then(r => r.json())
+            fetchWithTimeout(`${SCRIPT_URL_REKOD_PENGELUARAN}?action=getExpenseRecords`)
                 .then(data => {
                     if (data && data.length > 0) {
                         rawDataPengeluaran = data;
@@ -1336,13 +1389,15 @@
                     } else {
                         loading.classList.add('hidden');
                         emptyState.classList.remove('hidden');
+                        emptyState.innerHTML = `<p class="text-xs text-slate-400 uppercase tracking-wider">Tiada rekod pengeluaran ditemui buat masa ini.</p>`;
                     }
                 })
                 .catch(error => {
                     console.error('Error:', error);
                     loading.classList.add('hidden');
                     emptyState.classList.remove('hidden');
-                    emptyState.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider p-4">Ralat rangkaian untuk mendapatkan data pengeluaran.</p>`;
+                    emptyState.innerHTML = `<p class="text-xs text-rose-400 uppercase tracking-wider p-4 mb-3">Ralat rangkaian: ${error.message}</p>
+                        <button onclick="muatDataKeluar()" class="text-[10px] bg-white/5 hover:bg-white/10 border border-white/10 px-4 py-2 rounded-xl font-semibold tracking-wide">CUBA LAGI</button>`;
                 })
                 .finally(() => { refreshIcon.classList.remove('animate-spin'); });
         }
